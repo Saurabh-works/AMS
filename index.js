@@ -436,10 +436,16 @@ app.get("/attendance-report/:batch/:id/:month", async (req, res) => {
   }
 });
 
-app.get("/", (req, res)=>{
-  app.use(express.static(path.resolve(__dirname, "ams", "build")));
+// app.get("/", (req, res)=>{
+//   app.use(express.static(path.resolve(__dirname, "ams", "build")));
+//   res.sendFile(path.resolve(__dirname, "ams", "build", "index.html"));
+// });
+
+app.use(express.static(path.resolve(__dirname, "ams", "build")));
+app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "ams", "build", "index.html"));
 });
+
 
 
 app.listen(5001, ()=>{
