@@ -1,0 +1,6 @@
+select.outlineRemove:focus{
+    outline: none;
+}
+table.Attendancemarktable th td{
+    text-align: center;
+}

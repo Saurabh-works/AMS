@@ -1,0 +1,41 @@
+{
+    "students": [
+      {
+        "id": "1",
+        "name": "Saurabh Shinde",
+        "batch": "A"
+      },
+      {
+        "id": "2",
+        "name": "Aniket Gawai",
+        "batch": "A"
+      },
+      {
+        "id": "3",
+        "name": "Tilakchand dhake",
+        "batch": "B"
+      },
+      {
+        "id": "4",
+        "name": "Sanket Kautkar",
+        "batch": "B"
+      },
+      {
+        "id": "5",
+        "name": "Pratik Phadtare",
+        "batch": "A"
+      },
+      {
+        "id": "6",
+        "name": "vivek",
+        "batch": "B"
+      },
+      {
+        "id": 7,
+        "name": "Vanshita",
+        "batch": "B"
+      }
+    ],
+    "attendance": {}
+  }
+  
