@@ -28,9 +28,54 @@ app.use(cors());
 
 // signup.....................................
 
+// app.post("/signup", async (req, resp) => {
+//   try {
+//     let user = new User(req.body);
+//     let result = await user.save();
+//     result = result.toObject();
+//     delete result.password;
+
+//     // Prepare the email options
+//     const mailOptions = {
+//       from: "gawaianiket499@gmail.com",
+//       to: user.email,
+//       subject: "Your Attendance Portal Login Details",
+//       text: `Hello ${user.name},\n\nWelcome to the Student Attendance Portal. Below are your login credentials:\n\nEmail: ${user.email}\nPassword: ${req.body.password}\nBatch: ${req.body.batch}\nStudent ID: ${req.body.id}\n\nIt's crucial to keep this information confidential. Do not share your credentials with anyone. They are for your personal use only.\n\nIf you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards,\nAdmin Department,\nRADIANT IT SERVICES PVT. LTD.`,
+//     };
+
+//     // Send the email
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         console.error("Error sending email:", error);
+//       } else {
+//         console.log("Email sent:", info.response);
+//       }
+//     });
+
+//     // Send the response to the client
+//     resp.status(201).send(result);
+//   } catch (error) {
+//     console.error("Error during signup:", error);
+//     resp.status(500).send({ status: "error", message: error.message });
+//   }
+// });
+
+// Signup Endpoint
 app.post("/signup", async (req, resp) => {
+  const { name, email, password, role, id, batch, dob } = req.body;
+
   try {
-    let user = new User(req.body);
+    // Check if user with the same email or ID already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { id }] });
+    if (existingUser) {
+      return resp.status(400).json({
+        success: false,
+        message: `User with email ${email} or ID ${id} already exists. Please use different credentials.`,
+      });
+    }
+
+    // Create new user
+    const user = new User({ name, email, password, role, id, batch, dob });
     let result = await user.save();
     result = result.toObject();
     delete result.password;
@@ -38,27 +83,39 @@ app.post("/signup", async (req, resp) => {
     // Prepare the email options
     const mailOptions = {
       from: "gawaianiket499@gmail.com",
-      to: user.email,
+      to: email,
       subject: "Your Attendance Portal Login Details",
-      text: `Hello ${user.name},\n\nWelcome to the Student Attendance Portal. Below are your login credentials:\n\nEmail: ${user.email}\nPassword: ${req.body.password}\nBatch: ${req.body.batch}\nStudent ID: ${req.body.id}\n\nIt's crucial to keep this information confidential. Do not share your credentials with anyone. They are for your personal use only.\n\nIf you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards,\nAdmin Department,\nRADIANT IT SERVICES PVT. LTD.`,
+      text: `Hello ${name},\n\nWelcome to the Student Attendance Portal. Below are your login credentials:\n\nEmail: ${email}\nPassword: ${password}\nBatch: ${batch}\nStudent ID: ${id}\n\nIt's crucial to keep this information confidential. Do not share your credentials with anyone. They are for your personal use only.\n\nIf you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards,\nAdmin Department,\nRADIANT IT SERVICES PVT. LTD.`,
     };
 
     // Send the email
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email:", error);
+        return resp.status(500).json({
+          success: false,
+          message: "User created but failed to send email.",
+          error: error.message,
+        });
       } else {
         console.log("Email sent:", info.response);
+        return resp.status(201).json({
+          success: true,
+          message: "User registered successfully and email sent!",
+          data: result,
+        });
       }
     });
-
-    // Send the response to the client
-    resp.status(201).send(result);
   } catch (error) {
     console.error("Error during signup:", error);
-    resp.status(500).send({ status: "error", message: error.message });
+    return resp.status(500).json({
+      success: false,
+      message: "An error occurred during signup.",
+      error: error.message,
+    });
   }
 });
+
 
 // login........................................
 app.post("/login", async (req, resp) => {
@@ -78,11 +135,46 @@ app.get("/user", async (req, resp) => {
 });
 
 // add student.................................
+// app.post("/students", async (req, resp) => {
+//   let student = new Student(req.body);
+//   let result = await student.save();
+//   resp.send(result);
+// });
+// Existing imports and configurations remain the same
+
+// Add Student Endpoint
 app.post("/students", async (req, resp) => {
-  let student = new Student(req.body);
-  let result = await student.save();
-  resp.send(result);
+  const { id, name, batch } = req.body;
+
+  try {
+    // Check if student with the same ID already exists
+    const existingStudent = await Student.findOne({ id });
+    if (existingStudent) {
+      return resp.status(400).json({
+        success: false,
+        message: `Student with ID ${id} already exists. Please use a different ID.`,
+      });
+    }
+
+    // Create new student
+    const student = new Student({ id, name, batch });
+    const result = await student.save();
+
+    return resp.status(201).json({
+      success: true,
+      message: "Student added successfully!",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error adding student:", error);
+    return resp.status(500).json({
+      success: false,
+      message: "An error occurred while adding the student.",
+      error: error.message,
+    });
+  }
 });
+
 
 // update student..................................................
 app.get("/update-student/:id", async (req, resp) => {
@@ -101,7 +193,7 @@ app.put("/update-user-student/:id", async (req, resp) => {
       { $set: req.body }
     );
 
-    // Prepare the email options
+// Prepare the email options
     const mailOptions = {
       from: "gawaianiket499@gmail.com",
       to: req.body.email,

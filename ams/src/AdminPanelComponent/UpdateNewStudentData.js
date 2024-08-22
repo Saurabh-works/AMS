@@ -96,65 +96,141 @@ const UpdateNewStudentData = () => {
     alert("Batch added successfully!");
   };
 
+  // const addStudent = async () => {
+  //   if (!studentId || !studentName || !studentBatch) {
+  //     alert("Please enter ID, name, and batch.");
+  //     return;
+  //   }
+
+  //   const newStudent = {
+  //     id: parseInt(studentId),
+  //     name: studentName,
+  //     batch: studentBatch,
+  //   };
+
+  //   try {
+  //     // let result = await fetch("http://localhost:5001/students", {
+  //       let result = await fetch(`${window.location.origin}/students`, {
+  //       method: "POST",
+  //       body: JSON.stringify(newStudent),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     result = await result.json();
+  //     console.log(result);
+  //     alert("Student added successfully!");
+  //   } catch (error) {
+  //     console.error("There was an error adding the student!", error);
+  //     alert("There was an error adding the student. Please try again.");
+  //   }
+
+  //   try {
+  //     let userName = studentName.toLowerCase().replace(/ /g, "");
+  //     let next = dob.split("-");
+  //     let final = `${userName}@${next[0]}`;
+
+  //     const newUser = {
+  //       name: studentName,
+  //       email: email,
+  //       password: final,
+  //       role: "student",
+  //       id: parseInt(studentId),
+  //       batch: studentBatch,
+  //       dob: dob
+  //     };
+  //     // let result = await fetch("http://localhost:5001/signup", {
+  //       let result = await fetch(`${window.location.origin}/signup`, {
+  //       method: "post",
+  //       body: JSON.stringify(newUser),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     result = await result.json();
+  //     console.log(result);
+  //     alert("Account created successfully");
+  //   } catch (error) {
+  //     console.error("Error registering user", error);
+  //     alert("Error registering user");
+  //   }
+  // };
+
   const addStudent = async () => {
-    if (!studentId || !studentName || !studentBatch) {
-      alert("Please enter ID, name, and batch.");
+    if (!studentId || !studentName || !studentBatch || !email || !dob) {
+      alert("Please fill in all required fields.");
       return;
     }
-
+  
     const newStudent = {
       id: parseInt(studentId),
       name: studentName,
       batch: studentBatch,
     };
-
+  
     try {
-      // let result = await fetch("http://localhost:5001/students", {
-        let result = await fetch(`${window.location.origin}/students`, {
+      // Add student to students collection
+      const studentResponse = await fetch(`${window.location.origin}/students`, {
         method: "POST",
         body: JSON.stringify(newStudent),
         headers: {
           "Content-Type": "application/json",
         },
       });
-      result = await result.json();
-      console.log(result);
-      alert("Student added successfully!");
-    } catch (error) {
-      console.error("There was an error adding the student!", error);
-      alert("There was an error adding the student. Please try again.");
-    }
-
-    try {
+  
+      const studentResult = await studentResponse.json();
+  
+      if (!studentResponse.ok) {
+        // Handle error from adding student
+        alert(studentResult.message || "Failed to add student.");
+        return;
+      }
+  
+      // Prepare user credentials
       let userName = studentName.toLowerCase().replace(/ /g, "");
-      let next = dob.split("-");
-      let final = `${userName}@${next[0]}`;
-
+      let [year] = dob.split("-");
+      let password = `${userName}@${year}`;
+  
       const newUser = {
         name: studentName,
         email: email,
-        password: final,
+        password: password,
         role: "student",
         id: parseInt(studentId),
         batch: studentBatch,
-        dob: dob
+        dob: dob,
       };
-      // let result = await fetch("http://localhost:5001/signup", {
-        let result = await fetch(`${window.location.origin}/signup`, {
-        method: "post",
+  
+      // Add user to users collection
+      const userResponse = await fetch(`${window.location.origin}/signup`, {
+        method: "POST",
         body: JSON.stringify(newUser),
         headers: {
           "Content-Type": "application/json",
         },
       });
-      result = await result.json();
-      console.log(result);
-      alert("Account created successfully");
+  
+      const userResult = await userResponse.json();
+  
+      if (!userResponse.ok) {
+        // Handle error from adding user
+        alert(userResult.message || "Failed to create user account.");
+        return;
+      }
+  
+      alert("Student and user account added successfully!");
+      // Reset form fields after successful addition
+      setStudentId("");
+      setStudentName("");
+      setEmail("");
+      setDOB("");
+      setStudentBatch("");
     } catch (error) {
-      console.error("Error registering user", error);
-      alert("Error registering user");
+      console.error("Error adding student and user:", error);
+      alert("An unexpected error occurred. Please try again later.");
     }
   };
+  
 
   return (
     <Container maxWidth="lg" sx={{ mt: 3 }}>

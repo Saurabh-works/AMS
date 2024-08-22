@@ -168,8 +168,8 @@ function SignUp() {
             </Grid>
 
             {/* sign up button */}
-            <Button type="submit" fullWidth variant="contained" sx={{mt:2,  mb: 2 }}>
-              Sign Up
+            <Button type="submit" fullWidth variant="contained" sx={{mt:2,  mb: 2 }} disabled>
+              Sign Up 
             </Button>
             <Grid container justifyContent="center">
               {/* sign in */}

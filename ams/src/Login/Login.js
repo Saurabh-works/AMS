@@ -103,7 +103,7 @@ function Login() {
 
           {/* Title */}
           <Typography component="h1" variant="h5">
-            Signin
+            Sign in
           </Typography>
 
           {/* main form */}
