@@ -27,6 +27,9 @@ const AttendanceComponent = () => {
   const [rowColors, setRowColors] = useState({});
   const [batches, setBatches] = useState([]);
 
+  const [selectedTrainer, setSelectedTrainer] = useState("");
+  const auth = localStorage.getItem("user");
+
   const handleColorChange = (id, color) => {
     setRowColors((prevColors) => ({
       ...prevColors,
@@ -50,6 +53,7 @@ const AttendanceComponent = () => {
         const batchData = await fetch(`${window.location.origin}/batch`);
         const data = await batchData.json();
         setBatches(data);
+        setSelectedTrainer(JSON.parse(auth).name)
       } catch (error) {
         console.error("Error fetching students:", error);
       }
@@ -119,6 +123,10 @@ const AttendanceComponent = () => {
     (student) => student.batch === batch
   );
 
+  const filteredBatches = selectedTrainer
+  ? batches.filter((batch) => batch.name === selectedTrainer)
+  : batches;
+
   return (
     <Container component="main" maxWidth="lg">
       <CssBaseline />
@@ -133,7 +141,7 @@ const AttendanceComponent = () => {
                 onChange={handleBatchChange}
                 required
               >
-                {batches.map((item) => (
+                {filteredBatches.map((item) => (
                   <MenuItem value={item.batch}>{item.time} {item.batch}</MenuItem>
                 ))}
               </Select>

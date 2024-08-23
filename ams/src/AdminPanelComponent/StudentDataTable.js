@@ -29,6 +29,8 @@ const StudentDataTable = () => {
   const [batches, setBatches] = useState([]);
 
   const [selectedTrainer, setSelectedTrainer] = useState("");
+  const [selectedTrainerName, setSelectedTrainerName] = useState("");
+  const auth = localStorage.getItem("user");
 
   // update batch.................
   const [trainerName, setTrainerName] = useState("");
@@ -177,6 +179,7 @@ const StudentDataTable = () => {
         const batchData = await fetch(`${window.location.origin}/batch`);
         const data = await batchData.json();
         setBatches(data);
+        setSelectedTrainerName(JSON.parse(auth).name)
       } catch (error) {
         console.error("Error fetching students:", error);
       }
@@ -227,6 +230,10 @@ const StudentDataTable = () => {
   const filteredStudents = selectedBatch
     ? students.filter((student) => student.batch === selectedBatch)
     : students;
+
+    const filteredTrainerBatches = selectedTrainerName
+    ? batches.filter((batch) => batch.name === selectedTrainerName)
+    : batches;
 
   const filteredBatches = selectedTrainer
     ? batches.filter((batch) => batch.name === selectedTrainer)
@@ -307,7 +314,7 @@ const StudentDataTable = () => {
                       <MenuItem value="" selected>
                         All Batches
                       </MenuItem>
-                      {batches.map((item) => (
+                      {filteredTrainerBatches.map((item) => (
                         <MenuItem value={item.batch}>{item.time} {item.batch} </MenuItem>
                       ))}
                     </Select>

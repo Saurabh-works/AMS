@@ -29,6 +29,8 @@ import { PieChart } from "@mui/x-charts";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import { pieArcLabelClasses } from "@mui/x-charts"; 
 import { useReactToPrint } from "react-to-print";
+import { useWindowSize } from "../custom-hooks/useWindowSize";
+
 
 const StudentReport = () => {
   const [batch, setBatch] = useState("");
@@ -44,7 +46,13 @@ const StudentReport = () => {
   const [open, setOpen] = useState(false);
   const [batches, setBatches] = useState([]);
 
+  const [chartWidth, setChartWidth] = useState(500);
+  const [width, height] = useWindowSize();
+
   const componentPDF = useRef(null);
+
+  const [selectedTrainer, setSelectedTrainer] = useState("");
+  const auth = localStorage.getItem("user");
 
   useEffect(() => {
     const batches = async () => {
@@ -53,6 +61,7 @@ const StudentReport = () => {
         const batchData = await fetch(`${window.location.origin}/batch`);
         const data = await batchData.json();
         setBatches(data);
+        setSelectedTrainer(JSON.parse(auth).name)
       } catch (error) {
         console.error("Error fetching students:", error);
       }
@@ -118,6 +127,18 @@ const StudentReport = () => {
     onAfterPrint: () => alert("Data saved in PDF"),
   });
 
+  const filteredBatches = selectedTrainer
+  ? batches.filter((batch) => batch.name === selectedTrainer)
+  : batches;
+
+  useEffect(() => {
+    if (width < 500) {
+      setChartWidth(300);
+    } else {
+      setChartWidth(500);
+    }
+  });
+
   return (
     <Container component={"div"} maxWidth="lg" sx={{ mt: 3 }}>
       <div ref={componentPDF}>
@@ -157,7 +178,7 @@ const StudentReport = () => {
                     onChange={(e) => setBatch(e.target.value)}
                     required
                   >
-                    {batches.map((item) => (
+                    {filteredBatches.map((item) => (
                       <MenuItem value={item.batch}>{item.time} {item.batch}</MenuItem>
                     ))}
                   </Select>
@@ -336,7 +357,7 @@ const StudentReport = () => {
                             fontWeight: "bold",
                           },
                         }}
-                        width={500}
+                        width={chartWidth}
                         height={270}
                       />
                     </Grid>

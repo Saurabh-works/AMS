@@ -31,6 +31,9 @@ const UpdateNewStudentData = () => {
   const [batchName, setBatchName] = useState("");
   const [batchTime, setBatchTime] = useState("12:00");
 
+  const [selectedTrainer, setSelectedTrainer] = useState("");
+  const auth = localStorage.getItem("user");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,6 +50,7 @@ const UpdateNewStudentData = () => {
         const batchData = await fetch(`${window.location.origin}/batch`);
         const data = await batchData.json();
         setBatches(data);
+        setSelectedTrainer(JSON.parse(auth).name)
         const length = data.length;
         setBatchId(length + 1);
       } catch (error) {
@@ -230,6 +234,10 @@ const UpdateNewStudentData = () => {
       alert("An unexpected error occurred. Please try again later.");
     }
   };
+
+  const filteredBatches = selectedTrainer
+  ? batches.filter((batch) => batch.name === selectedTrainer)
+  : batches;
   
 
   return (
@@ -381,7 +389,7 @@ const UpdateNewStudentData = () => {
                     onChange={(e) => setStudentBatch(e.target.value)}
                     required
                   >
-                    {batches.map((item) => (
+                    {filteredBatches.map((item) => (
                       <MenuItem value={item.batch}>{item.time} {item.batch}</MenuItem>
                     ))}
                   </Select>
